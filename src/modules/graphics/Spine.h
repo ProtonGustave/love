@@ -3,7 +3,13 @@
 // LOVE
 #include "common/config.h"
 #include "common/Object.h"
+#include "common/Module.h"
 #include "Drawable.h"
+#include "Image.h"
+#include "filesystem/Filesystem.h"
+#include "filesystem/wrap_Filesystem.h"
+#include <spine/extension.h>
+#include <spine/spine.h>
 
 namespace love
 {
@@ -20,7 +26,7 @@ public:
     spSkeletonData* skeletonData;
     spAtlas* atlas;
 
-	SkeletonData(std::string& atlasPath, std::string& jsonPath);
+	SkeletonData(const char* atlasPath, const char* jsonPath);
 	virtual ~SkeletonData();
 }; // SkeletonData
 

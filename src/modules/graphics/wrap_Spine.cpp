@@ -58,7 +58,7 @@ StateData* luax_checkstatedata(lua_State *L, int idx)
 int w_StateData_createState(lua_State *L)
 {
     StateData* stateData = luax_checkstatedata(L, 1);
-    State* state = new State(stateData)
+    State* state = new State(stateData);
 
     luax_pushtype(L, state);
     return 1;
@@ -101,10 +101,10 @@ int w_State_setAnimationByName(lua_State *L)
 {
     State* state = luax_checkstate(L, 1);
 	int track = (int) luaL_checkinteger(L, 2);
-    char* animName = luaL_checkstring(L, 3);
+    const char* animName = luaL_checkstring(L, 3);
     bool loop = luax_checkboolean(L, 4);
     // TODO: return created track entry
-    spAnimationState_setAnimationByName(state, track, animName, loop);
+    spAnimationState_setAnimationByName(state->state, track, animName, loop);
     return 0;
 }
 
@@ -132,7 +132,7 @@ Skeleton* luax_checkskeleton(lua_State *L, int idx)
 int w_Skeleton_updateWorldTransform(lua_State *L)
 {
     Skeleton* skeleton = luax_checkskeleton(L, 1);
-    spSkeleton_updateWorldTransform(skeleton);
+    spSkeleton_updateWorldTransform(skeleton->skeleton);
     return 0;
 }
 

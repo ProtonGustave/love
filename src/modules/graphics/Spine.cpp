@@ -2,10 +2,10 @@
 
 #include "Spine.h"
 #include "Graphics.h"
-#include <spine/extension.h>
-#include <spine/spine.h>
 
 void _spAtlasPage_createTexture(spAtlasPage *self, const char *path) {
+    using namespace love;
+
     // if (self->magFilter == SP_ATLAS_LINEAR) texture->setSmooth(true);
     // if (self->uWrap == SP_ATLAS_REPEAT && self->vWrap == SP_ATLAS_REPEAT) texture->setRepeated(true);
 
@@ -13,27 +13,31 @@ void _spAtlasPage_createTexture(spAtlasPage *self, const char *path) {
     // Vector2u size = texture->getSize();
     // self->width = size.x;
     // self->height = size.y;
-
-    auto imagemodule = Module::getInstance<image::Image>(Module::M_IMAGE);
     // if (imagemodule == nullptr)
     //     luaL_error(L, "Cannot load images without the love.image module.");
 
-	StrongRef<image::ImageData> idata;
-	Image::Slices slices(TEXTURE_2D);
-	File *file = new filesystem::File(path);
-	Data *data = file->read();
+    auto imagemodule = Module::getInstance<image::Image>(Module::M_IMAGE);
+	auto fs = Module::getInstance<filesystem::Filesystem>(Module::M_FILESYSTEM);
+    auto gfx = Module::getInstance<graphics::Graphics>(Module::M_GRAPHICS);
+
+    StrongRef<image::ImageData> idata;
+    graphics::Image::Slices slices(graphics::TEXTURE_2D);
+    filesystem::File* file = fs->newFile(path);
+    Data* data = file->read();
     file->release();
     idata.set(imagemodule->newImageData(data), Acquire::NORETAIN);
     slices.set(0, 0, idata);
-    Image::Settings s;
-    Image* img = new Image(slices, s);
+    graphics::Image::Settings settings;
+    graphics::Image* img = gfx->newImage(slices, settings);
+	// img->setFilter(filter);
     self->rendererObject = img;
     self->width = img->getWidth();
     self->height = img->getHeight();
 }
 
 void _spAtlasPage_disposeTexture(spAtlasPage *self) {
-    delete self->rendererObject;
+    // TODO: delete this
+    // (love::graphics::Image) self->rendererObject;
 }
 
 // TODO: maybe use local function for file reading
@@ -57,7 +61,7 @@ SkeletonData::SkeletonData(const char* atlasPath, const char* jsonPath)
 
     // load json from file
     spSkeletonJson* json = spSkeletonJson_create(atlas);
-    skeletonData = spSkeletonJson_readSkeletonDataFile(json, jsonPath)
+    skeletonData = spSkeletonJson_readSkeletonDataFile(json, jsonPath);
 
     // If loading failed, print the error
     if (!skeletonData) {

@@ -626,13 +626,59 @@ set(LOVE_SRC_MODULE_GRAPHICS_OPENGL
 	src/modules/graphics/opengl/StreamBuffer.h
 )
 
+set(LOVE_SRC_MODULE_GRAPHICS_SPINE
+    src/modules/graphics/spine/Animation.c
+    src/modules/graphics/spine/AnimationState.c
+    src/modules/graphics/spine/AnimationStateData.c
+    src/modules/graphics/spine/Array.c
+    src/modules/graphics/spine/Atlas.c
+    src/modules/graphics/spine/AtlasAttachmentLoader.c
+    src/modules/graphics/spine/Attachment.c
+    src/modules/graphics/spine/AttachmentLoader.c
+    src/modules/graphics/spine/Bone.c
+    src/modules/graphics/spine/BoneData.c
+    src/modules/graphics/spine/BoundingBoxAttachment.c
+    src/modules/graphics/spine/ClippingAttachment.c
+    src/modules/graphics/spine/Color.c
+    src/modules/graphics/spine/Debug.c
+    src/modules/graphics/spine/Event.c
+    src/modules/graphics/spine/EventData.c
+    src/modules/graphics/spine/extension.c
+    src/modules/graphics/spine/IkConstraint.c
+    src/modules/graphics/spine/IkConstraintData.c
+    src/modules/graphics/spine/Json.c
+    src/modules/graphics/spine/Json.h
+    src/modules/graphics/spine/MeshAttachment.c
+    src/modules/graphics/spine/PathAttachment.c
+    src/modules/graphics/spine/PathConstraint.c
+    src/modules/graphics/spine/PathConstraintData.c
+    src/modules/graphics/spine/PointAttachment.c
+    src/modules/graphics/spine/RegionAttachment.c
+    src/modules/graphics/spine/Skeleton.c
+    src/modules/graphics/spine/SkeletonBinary.c
+    src/modules/graphics/spine/SkeletonBounds.c
+    src/modules/graphics/spine/SkeletonClipping.c
+    src/modules/graphics/spine/SkeletonData.c
+    src/modules/graphics/spine/SkeletonJson.c
+    src/modules/graphics/spine/Skin.c
+    src/modules/graphics/spine/Slot.c
+    src/modules/graphics/spine/SlotData.c
+    src/modules/graphics/spine/TransformConstraint.c
+    src/modules/graphics/spine/TransformConstraintData.c
+    src/modules/graphics/spine/Triangulator.c
+    src/modules/graphics/spine/VertexAttachment.c
+    src/modules/graphics/spine/VertexEffect.c
+    )
+
 set(LOVE_SRC_MODULE_GRAPHICS
 	${LOVE_SRC_MODULE_GRAPHICS_ROOT}
 	${LOVE_SRC_MODULE_GRAPHICS_OPENGL}
+    ${LOVE_SRC_MODULE_GRAPHICS_SPINE}
 )
 
 source_group("modules\\graphics" FILES ${LOVE_SRC_MODULE_GRAPHICS_ROOT})
 source_group("modules\\graphics\\opengl" FILES ${LOVE_SRC_MODULE_GRAPHICS_OPENGL})
+source_group("modules\\graphics\\spine" FILES ${LOVE_SRC_MODULE_GRAPHICS_SPINE})
 
 #
 # love.image
@@ -1122,95 +1168,6 @@ source_group("modules\\window\\sdl" FILES ${LOVE_SRC_MODULE_WINDOW_SDL})
 ###################################
 
 #
-# spine-c
-#
-
-set(LOVE_SRC_SPINE
-  src/libraries/spine/Animation.c
-  src/libraries/spine/Animation.h
-  src/libraries/spine/AnimationState.c
-  src/libraries/spine/AnimationState.h
-  src/libraries/spine/AnimationStateData.c
-  src/libraries/spine/AnimationStateData.h
-  src/libraries/spine/Array.c
-  src/libraries/spine/Array.h
-  src/libraries/spine/Atlas.c
-  src/libraries/spine/Atlas.h
-  src/libraries/spine/AtlasAttachmentLoader.c
-  src/libraries/spine/AtlasAttachmentLoader.h
-  src/libraries/spine/Attachment.c
-  src/libraries/spine/Attachment.h
-  src/libraries/spine/AttachmentLoader.c
-  src/libraries/spine/AttachmentLoader.h
-  src/libraries/spine/Bone.c
-  src/libraries/spine/Bone.h
-  src/libraries/spine/BoneData.c
-  src/libraries/spine/BoneData.h
-  src/libraries/spine/BoundingBoxAttachment.c
-  src/libraries/spine/BoundingBoxAttachment.h
-  src/libraries/spine/ClippingAttachment.c
-  src/libraries/spine/ClippingAttachment.h
-  src/libraries/spine/Color.c
-  src/libraries/spine/Color.h
-  src/libraries/spine/Debug.c
-  src/libraries/spine/Debug.h
-  src/libraries/spine/dll.h
-  src/libraries/spine/Event.c
-  src/libraries/spine/Event.h
-  src/libraries/spine/EventData.c
-  src/libraries/spine/EventData.h
-  src/libraries/spine/extension.c
-  src/libraries/spine/extension.h
-  src/libraries/spine/IkConstraint.c
-  src/libraries/spine/IkConstraint.h
-  src/libraries/spine/IkConstraintData.c
-  src/libraries/spine/IkConstraintData.h
-  src/libraries/spine/Json.c
-  src/libraries/spine/Json.h
-  src/libraries/spine/MeshAttachment.c
-  src/libraries/spine/MeshAttachment.h
-  src/libraries/spine/PathAttachment.c
-  src/libraries/spine/PathAttachment.h
-  src/libraries/spine/PathConstraint.c
-  src/libraries/spine/PathConstraint.h
-  src/libraries/spine/PathConstraintData.c
-  src/libraries/spine/PathConstraintData.h
-  src/libraries/spine/PointAttachment.c
-  src/libraries/spine/PointAttachment.h
-  src/libraries/spine/RegionAttachment.c
-  src/libraries/spine/RegionAttachment.h
-  src/libraries/spine/Skeleton.c
-  src/libraries/spine/Skeleton.h
-  src/libraries/spine/SkeletonBinary.c
-  src/libraries/spine/SkeletonBinary.h
-  src/libraries/spine/SkeletonBounds.c
-  src/libraries/spine/SkeletonBounds.h
-  src/libraries/spine/SkeletonClipping.c
-  src/libraries/spine/SkeletonClipping.h
-  src/libraries/spine/SkeletonData.c
-  src/libraries/spine/SkeletonData.h
-  src/libraries/spine/SkeletonJson.c
-  src/libraries/spine/SkeletonJson.h
-  src/libraries/spine/Skin.c
-  src/libraries/spine/Skin.h
-  src/libraries/spine/Slot.c
-  src/libraries/spine/Slot.h
-  src/libraries/spine/SlotData.c
-  src/libraries/spine/SlotData.h
-  src/libraries/spine/spine.h
-  src/libraries/spine/TransformConstraint.c
-  src/libraries/spine/TransformConstraint.h
-  src/libraries/spine/TransformConstraintData.c
-  src/libraries/spine/TransformConstraintData.h
-  src/libraries/spine/Triangulator.c
-  src/libraries/spine/Triangulator.h
-  src/libraries/spine/VertexAttachment.c
-  src/libraries/spine/VertexAttachment.h
-  src/libraries/spine/VertexEffect.c
-  src/libraries/spine/VertexEffect.h
-)
-
-#
 # Box2D
 #
 
@@ -1343,6 +1300,55 @@ set(LOVE_SRC_3P_BOX2D
 )
 
 add_library(love_3p_box2d ${LOVE_SRC_3P_BOX2D})
+
+#
+# spine
+#
+set(LOVE_SRC_3P_SPINE
+    src/libraries/spine/Animation.h
+    src/libraries/spine/AnimationState.h
+    src/libraries/spine/AnimationStateData.h
+    src/libraries/spine/Array.h
+    src/libraries/spine/Atlas.h
+    src/libraries/spine/AtlasAttachmentLoader.h
+    src/libraries/spine/Attachment.h
+    src/libraries/spine/AttachmentLoader.h
+    src/libraries/spine/Bone.h
+    src/libraries/spine/BoneData.h
+    src/libraries/spine/BoundingBoxAttachment.h
+    src/libraries/spine/ClippingAttachment.h
+    src/libraries/spine/Color.h
+    src/libraries/spine/Debug.h
+    src/libraries/spine/dll.h
+    src/libraries/spine/Event.h
+    src/libraries/spine/EventData.h
+    src/libraries/spine/extension.h
+    src/libraries/spine/IkConstraint.h
+    src/libraries/spine/IkConstraintData.h
+    src/libraries/spine/MeshAttachment.h
+    src/libraries/spine/PathAttachment.h
+    src/libraries/spine/PathConstraint.h
+    src/libraries/spine/PathConstraintData.h
+    src/libraries/spine/PointAttachment.h
+    src/libraries/spine/RegionAttachment.h
+    src/libraries/spine/Skeleton.h
+    src/libraries/spine/SkeletonBinary.h
+    src/libraries/spine/SkeletonBounds.h
+    src/libraries/spine/SkeletonClipping.h
+    src/libraries/spine/SkeletonData.h
+    src/libraries/spine/SkeletonJson.h
+    src/libraries/spine/Skin.h
+    src/libraries/spine/Slot.h
+    src/libraries/spine/SlotData.h
+    src/libraries/spine/spine.h
+    src/libraries/spine/TransformConstraint.h
+    src/libraries/spine/TransformConstraintData.h
+    src/libraries/spine/Triangulator.h
+    src/libraries/spine/VertexAttachment.h
+    src/libraries/spine/VertexEffect.h
+)
+
+add_library(love_3p_spine ${LOVE_SRC_3P_SPINE})
 
 #
 # ddsparse
@@ -1793,6 +1799,7 @@ add_library(love_3p_xxhash ${LOVE_SRC_3P_XXHASH})
 set(LOVE_3P
 	love_3p_box2d
 	love_3p_ddsparse
+    love_3p_spine
 	love_3p_enet
 	love_3p_glad
 	love_3p_glslang
