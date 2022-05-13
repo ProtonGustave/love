@@ -901,6 +901,7 @@ spSkeletonData *spSkeletonJson_readSkeletonDataFile(spSkeletonJson *self, const 
 	int length;
 	spSkeletonData *skeletonData;
 	const char *json = _spUtil_readFile(path, &length);
+    /* printf("LENGTH %d, JSON %s\n", length, json); */
 	if (length == 0 || !json) {
 		_spSkeletonJson_setError(self, 0, "Unable to read skeleton file: ", path);
 		return NULL;

@@ -6,6 +6,7 @@
 #include "common/Module.h"
 #include "Drawable.h"
 #include "Image.h"
+#include "Mesh.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/wrap_Filesystem.h"
 #include <spine/extension.h>
@@ -56,7 +57,9 @@ class Skeleton : public Drawable
 {
 public:
 	static love::Type type;
+
     spSkeleton* skeleton;
+    Mesh* mesh;
 
 	Skeleton(const SkeletonData* skeletonData);
 	virtual ~Skeleton();

@@ -1119,6 +1119,12 @@ int w_newSpine(lua_State *L)
     const char *jsonPath = luaL_checkstring(L, 2);
 
     // TODO CATCH EXCEPT STUFF
+	// StrongRef<SkeletonData> skeletonData;
+	// StrongRef<StateData> stateData;
+
+    // skeletonData.set(new SkeletonData(atlasPath, jsonPath));
+    // stateData.set(new StateData(skeletonData));
+
     SkeletonData* skeletonData = new SkeletonData(atlasPath, jsonPath);
     StateData* stateData = new StateData(skeletonData);
 
@@ -3071,6 +3077,10 @@ static const lua_CFunction types[] =
 	luaopen_mesh,
 	luaopen_text,
 	luaopen_video,
+    luaopen_skeletondata,
+    luaopen_statedata,
+    luaopen_state,
+    luaopen_skeleton,
 	0
 };
 

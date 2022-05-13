@@ -13,7 +13,8 @@
 // local state = stateData:createState()
 // state:update()
 // state:apply(skeleton)
-// skeleton:update()
+// skeleton:updateWorldTransform()
+// skeleton:updateMesh()
 // love.graphics.draw(skeleton)
 //
 // -------------------------------------------------------------------------------------
