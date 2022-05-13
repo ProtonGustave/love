@@ -528,6 +528,8 @@ source_group("modules\\font\\freetype" FILES ${LOVE_SRC_MODULE_FONT_FREETYPE})
 #
 
 set(LOVE_SRC_MODULE_GRAPHICS_ROOT
+    # src/modules/graphics/Skeleton.cpp
+    # src/modules/graphics/Skeleton.h
 	src/modules/graphics/Buffer.cpp
 	src/modules/graphics/Buffer.h
 	src/modules/graphics/Canvas.cpp
@@ -571,6 +573,8 @@ set(LOVE_SRC_MODULE_GRAPHICS_ROOT
 	src/modules/graphics/Video.h
 	src/modules/graphics/Volatile.cpp
 	src/modules/graphics/Volatile.h
+    # src/modules/graphics/wrap_Skeleton.cpp
+    # src/modules/graphics/wrap_Skeleton.h
 	src/modules/graphics/wrap_Canvas.cpp
 	src/modules/graphics/wrap_Canvas.h
 	src/modules/graphics/wrap_Font.cpp
@@ -593,6 +597,10 @@ set(LOVE_SRC_MODULE_GRAPHICS_ROOT
 	src/modules/graphics/wrap_Texture.h
 	src/modules/graphics/wrap_Text.cpp
 	src/modules/graphics/wrap_Text.h
+    src/modules/graphics/Spine.cpp
+    src/modules/graphics/Spine.h
+	src/modules/graphics/wrap_Spine.cpp
+	src/modules/graphics/wrap_Spine.h
 	src/modules/graphics/wrap_Video.cpp
 	src/modules/graphics/wrap_Video.h
 )
@@ -1112,6 +1120,95 @@ source_group("modules\\window\\sdl" FILES ${LOVE_SRC_MODULE_WINDOW_SDL})
 ###################################
 # Third-party libraries
 ###################################
+
+#
+# spine-c
+#
+
+set(LOVE_SRC_SPINE
+  src/libraries/spine/Animation.c
+  src/libraries/spine/Animation.h
+  src/libraries/spine/AnimationState.c
+  src/libraries/spine/AnimationState.h
+  src/libraries/spine/AnimationStateData.c
+  src/libraries/spine/AnimationStateData.h
+  src/libraries/spine/Array.c
+  src/libraries/spine/Array.h
+  src/libraries/spine/Atlas.c
+  src/libraries/spine/Atlas.h
+  src/libraries/spine/AtlasAttachmentLoader.c
+  src/libraries/spine/AtlasAttachmentLoader.h
+  src/libraries/spine/Attachment.c
+  src/libraries/spine/Attachment.h
+  src/libraries/spine/AttachmentLoader.c
+  src/libraries/spine/AttachmentLoader.h
+  src/libraries/spine/Bone.c
+  src/libraries/spine/Bone.h
+  src/libraries/spine/BoneData.c
+  src/libraries/spine/BoneData.h
+  src/libraries/spine/BoundingBoxAttachment.c
+  src/libraries/spine/BoundingBoxAttachment.h
+  src/libraries/spine/ClippingAttachment.c
+  src/libraries/spine/ClippingAttachment.h
+  src/libraries/spine/Color.c
+  src/libraries/spine/Color.h
+  src/libraries/spine/Debug.c
+  src/libraries/spine/Debug.h
+  src/libraries/spine/dll.h
+  src/libraries/spine/Event.c
+  src/libraries/spine/Event.h
+  src/libraries/spine/EventData.c
+  src/libraries/spine/EventData.h
+  src/libraries/spine/extension.c
+  src/libraries/spine/extension.h
+  src/libraries/spine/IkConstraint.c
+  src/libraries/spine/IkConstraint.h
+  src/libraries/spine/IkConstraintData.c
+  src/libraries/spine/IkConstraintData.h
+  src/libraries/spine/Json.c
+  src/libraries/spine/Json.h
+  src/libraries/spine/MeshAttachment.c
+  src/libraries/spine/MeshAttachment.h
+  src/libraries/spine/PathAttachment.c
+  src/libraries/spine/PathAttachment.h
+  src/libraries/spine/PathConstraint.c
+  src/libraries/spine/PathConstraint.h
+  src/libraries/spine/PathConstraintData.c
+  src/libraries/spine/PathConstraintData.h
+  src/libraries/spine/PointAttachment.c
+  src/libraries/spine/PointAttachment.h
+  src/libraries/spine/RegionAttachment.c
+  src/libraries/spine/RegionAttachment.h
+  src/libraries/spine/Skeleton.c
+  src/libraries/spine/Skeleton.h
+  src/libraries/spine/SkeletonBinary.c
+  src/libraries/spine/SkeletonBinary.h
+  src/libraries/spine/SkeletonBounds.c
+  src/libraries/spine/SkeletonBounds.h
+  src/libraries/spine/SkeletonClipping.c
+  src/libraries/spine/SkeletonClipping.h
+  src/libraries/spine/SkeletonData.c
+  src/libraries/spine/SkeletonData.h
+  src/libraries/spine/SkeletonJson.c
+  src/libraries/spine/SkeletonJson.h
+  src/libraries/spine/Skin.c
+  src/libraries/spine/Skin.h
+  src/libraries/spine/Slot.c
+  src/libraries/spine/Slot.h
+  src/libraries/spine/SlotData.c
+  src/libraries/spine/SlotData.h
+  src/libraries/spine/spine.h
+  src/libraries/spine/TransformConstraint.c
+  src/libraries/spine/TransformConstraint.h
+  src/libraries/spine/TransformConstraintData.c
+  src/libraries/spine/TransformConstraintData.h
+  src/libraries/spine/Triangulator.c
+  src/libraries/spine/Triangulator.h
+  src/libraries/spine/VertexAttachment.c
+  src/libraries/spine/VertexAttachment.h
+  src/libraries/spine/VertexEffect.c
+  src/libraries/spine/VertexEffect.h
+)
 
 #
 # Box2D

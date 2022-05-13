@@ -1111,6 +1111,23 @@ int w_newFont(lua_State *L)
 	return 1;
 }
 
+int w_newSpine(lua_State *L)
+{
+	luax_checkgraphicscreated(L);
+
+    const char *atlasPath = luaL_checkstring(L, 1);
+    const char *jsonPath = luaL_checkstring(L, 2);
+
+    // TODO CATCH EXCEPT STUFF
+    SkeletonData* skeletonData = new SkeletonData(atlasPath, jsonPath);
+    StateData* stateData = new StateData(skeletonData);
+
+	// Push the type.
+	luax_pushtype(L, skeletonData);
+	luax_pushtype(L, stateData);
+	return 2;
+}
+
 int w_newImageFont(lua_State *L)
 {
 	luax_checkgraphicscreated(L);
@@ -2919,6 +2936,7 @@ static const luaL_Reg functions[] =
 	{ "newCubeImage", w_newCubeImage },
 	{ "newQuad", w_newQuad },
 	{ "newFont", w_newFont },
+	{ "newSpine", w_newSpine },
 	{ "newImageFont", w_newImageFont },
 	{ "newSpriteBatch", w_newSpriteBatch },
 	{ "newParticleSystem", w_newParticleSystem },
