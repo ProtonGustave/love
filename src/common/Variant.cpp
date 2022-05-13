@@ -173,11 +173,15 @@ Variant Variant::fromLua(lua_State *L, int n, std::set<const void*> *tableSet)
 	case LUA_TLIGHTUSERDATA:
 		return Variant(lua_touserdata(L, n));
 	case LUA_TUSERDATA:
+        printf("USERDATA\n");
 		p = tryextractproxy(L, n);
-		if (p != nullptr)
+		if (p != nullptr){
+            printf("PROXY\n");
 			return Variant(p->type, p->object);
+        }
 		else
 		{
+            printf("NO PROXY\n");
 			luax_typerror(L, n, "love type");
 			return Variant();
 		}

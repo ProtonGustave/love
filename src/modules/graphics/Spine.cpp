@@ -140,8 +140,13 @@ Skeleton::~Skeleton()
     spSkeleton_dispose(skeleton);
 }
 
-// draw skeleton
 void Skeleton::draw(Graphics *gfx, const Matrix4 &m)
+{
+    mesh->draw(gfx, m);
+}
+
+// draw skeleton
+void Skeleton::updateMesh()
 {
     unsigned short quadIndices[6] = {0, 1, 2, 2, 3, 0};
 
@@ -282,7 +287,6 @@ void Skeleton::draw(Graphics *gfx, const Matrix4 &m)
 
     mesh->setDrawRange(0, totalVerticesNum);
     mesh->setTexture(texture);
-    mesh->draw(gfx, m);
 }
 
 } // graphics

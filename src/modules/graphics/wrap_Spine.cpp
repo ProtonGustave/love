@@ -137,9 +137,17 @@ int w_Skeleton_updateWorldTransform(lua_State *L)
     return 0;
 }
 
+int w_Skeleton_updateMesh(lua_State *L)
+{
+    Skeleton* skeleton = luax_checkskeleton(L, 1);
+    skeleton->updateMesh();
+    return 0;
+}
+
 static const luaL_Reg w_Skeleton_functions[] =
 {
 	{ "updateWorldTransform", w_Skeleton_updateWorldTransform },
+	{ "updateMesh", w_Skeleton_updateMesh },
 	{ 0, 0 }
 };
 

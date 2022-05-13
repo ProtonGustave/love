@@ -64,6 +64,8 @@ public:
 	Skeleton(const SkeletonData* skeletonData);
 	virtual ~Skeleton();
 
+    void updateMesh();
+
 	// Implements Drawable.
 	void draw(love::graphics::Graphics *gfx, const Matrix4 &m) override;
 }; // Skeleton
