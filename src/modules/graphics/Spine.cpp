@@ -5,8 +5,10 @@
 
 float worldVertices[1000];
 
-// TODO: path is relative to atlas, i.e. wolf.json, so need to search for full path
+// TODO: basically there is no cleaning at all, whole project
+
 void _spAtlasPage_createTexture(spAtlasPage *self, const char *path) {
+    // TODO: ideally images should be loaded from Lua side, JSON and ATLAS TOO
     using namespace love;
 
     // if (self->magFilter == SP_ATLAS_LINEAR) texture->setSmooth(true);
@@ -50,6 +52,7 @@ char *_spUtil_readFile(const char *path, int *length) {
 
     // TODO: make sure this stays alive
 	auto fs = Module::getInstance<filesystem::Filesystem>(Module::M_FILESYSTEM);
+    printf("OPNE ATLAS %s\n", path);
     filesystem::File* file = fs->newFile(path);
     Data* data = file->read();
     *length = data->getSize();
@@ -66,9 +69,13 @@ love::Type SkeletonData::type("SkeletonData", &Object::type);
 
 SkeletonData::SkeletonData(const char* atlasPath, const char* jsonPath)
 {
+    // TODO: delete this
+    char* volatileAtlasPath = new char[strlen(atlasPath)];
+    strcpy(volatileAtlasPath, atlasPath);
+
     // Load the atlas from a file. The last argument is a void* that will be 
     // stored in atlas->rendererObject.
-    spAtlas* atlas = spAtlas_createFromFile(atlasPath, 0);
+    spAtlas* atlas = spAtlas_createFromFile(atlasPath, volatileAtlasPath);
 
     // load json from file
     spSkeletonJson* json = spSkeletonJson_create(atlas);
@@ -111,7 +118,7 @@ love::Type State::type("State", &Object::type);
 State::State(const StateData* stateData)
 {
     state = spAnimationState_create(stateData->stateData);
-    spAnimationState_setAnimationByName(state, 0, "idle", 1);
+    // spAnimationState_setAnimationByName(state, 0, "idle", 1);
 }
 
 State::~State()
@@ -126,10 +133,10 @@ Skeleton::Skeleton(const SkeletonData* skeletonData)
 {
     auto gfx = Module::getInstance<Graphics>(Module::M_GRAPHICS);
     skeleton = spSkeleton_create(skeletonData->skeletonData);
-    skeleton->scaleX = 0.2;
-    skeleton->scaleY = -0.2;
-    skeleton->x = 500;
-    skeleton->y = 500;
+    // skeleton->scaleX = 0.2;
+    // skeleton->scaleY = -0.2;
+    // skeleton->x = 500;
+    // skeleton->y = 500;
 
     // TODO: vertex num should be bonesCount * 4
     mesh = gfx->newMesh(1000, PRIMITIVE_TRIANGLES, vertex::USAGE_STREAM);
@@ -285,9 +292,20 @@ void Skeleton::updateMesh()
         }
     }
 
+    // TODO: move "mesh->" operations to draw?
+
     mesh->setDrawRange(0, totalVerticesNum);
     mesh->setTexture(texture);
 }
+
+// Bone
+love::Type Bone::type("Bone", &Object::type);
+
+// TrackEntry
+love::Type TrackEntry::type("TrackEntry", &Object::type);
+
+// Animation
+love::Type Animation::type("Animation", &Object::type);
 
 } // graphics
 } // love

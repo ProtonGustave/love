@@ -70,5 +70,29 @@ public:
 	void draw(love::graphics::Graphics *gfx, const Matrix4 &m) override;
 }; // Skeleton
 
+class Bone : public Object
+{
+public:
+	static love::Type type;
+    spBone* bone;
+	Bone(spBone* bone): bone(bone) {};
+}; // Bone
+
+class TrackEntry : public Object
+{
+public:
+	static love::Type type;
+    spTrackEntry* trackEntry;
+	TrackEntry(spTrackEntry* trackEntry): trackEntry(trackEntry) {};
+}; // TrackEntry
+
+class Animation : public Object
+{
+public:
+	static love::Type type;
+    spAnimation* anim;
+	Animation(spAnimation* anim): anim(anim) {};
+}; // Animation
+
 } // graphics
 } // love
