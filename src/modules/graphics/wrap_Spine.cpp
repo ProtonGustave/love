@@ -63,12 +63,30 @@ int w_SkeletonData_findAnimation(lua_State *L)
     return 1;
 }
 
+int w_SkeletonData_getAnimations(lua_State *L)
+{
+	SkeletonData* skeletonData = luax_checkskeletondata(L, 1);
+
+	lua_createtable(L, skeletonData->skeletonData->animationsCount, 0);
+
+	for (size_t i = 0; i < skeletonData->skeletonData->animationsCount; i++)
+	{
+        Animation* animationWrapper = new Animation(skeletonData->skeletonData->animations[i]);
+        luax_pushtype(L, animationWrapper);
+		lua_rawseti(L, -2, (int) i + 1);
+        animationWrapper->release();
+	}
+
+	return 1;
+}
+
 static const luaL_Reg w_SkeletonData_functions[] =
 {
+    { "getAnimations", w_SkeletonData_getAnimations },
 	{ "findAnimation", w_SkeletonData_findAnimation },
-	{ "getSetupSize", w_SkeletonData_getSetupSize },
-	{ "getSetupWidth", w_SkeletonData_getSetupWidth },
-	{ "getSetupHeight", w_SkeletonData_getSetupHeight },
+	{ "getSize", w_SkeletonData_getSetupSize },
+	{ "getWidth", w_SkeletonData_getSetupWidth },
+	{ "getHeight", w_SkeletonData_getSetupHeight },
 	{ "createSkeleton", w_SkeletonData_createSkeleton },
 	{ 0, 0 }
 };
@@ -118,6 +136,13 @@ extern "C" int luaopen_statedata(lua_State *L)
 State* luax_checkstate(lua_State *L, int idx)
 {
 	return luax_checktype<State>(L, idx);
+}
+
+int w_State_getStateData(lua_State *L)
+{
+    State* state = luax_checkstate(L, 1);
+    luax_pushtype(L, state->stateData);
+    return 1;
 }
 
 int w_State_apply(lua_State *L)
@@ -316,8 +341,34 @@ int w_Skeleton_setAttachment(lua_State *L)
     return 0;
 }
 
+int w_Skeleton_getSkeletonData(lua_State* L)
+{
+    Skeleton* skeleton = luax_checkskeleton(L, 1);
+    luax_pushtype(L, skeleton->skeletonData);
+    return 1;
+}
+
+int w_Skeleton_findSlot(lua_State* L)
+{
+    Skeleton* skeleton = luax_checkskeleton(L, 1);
+    const char* slotName = luaL_checkstring(L, 2);
+    spSlot* slot = spSkeleton_findSlot(skeleton->skeleton, slotName);
+
+    if (slot == 0) {
+        lua_pushnil(L);
+    } else {
+        Slot* slotWrapper = new Slot(slot);
+        luax_pushtype(L, slotWrapper);
+        slotWrapper->release();
+    }
+
+    return 1;
+}
+
 static const luaL_Reg w_Skeleton_functions[] =
 {
+    { "findSlot", w_Skeleton_findSlot },
+    { "getSkeletonData", w_Skeleton_getSkeletonData },
     // return name of current animation of given track id
     { "findBone", w_Skeleton_findBone },
     { "setAttachment", w_Skeleton_setAttachment },
@@ -341,7 +392,7 @@ Bone* luax_checkbone(lua_State *L, int idx)
 	return luax_checktype<Bone>(L, idx);
 }
 
-int w_Bone_getWorldTransform(lua_State *L)
+int w_Bone_getWorldMatrix(lua_State *L)
 {
     Bone* bone = luax_checkbone(L, 1);
     lua_pushnumber(L, bone->bone->a);
@@ -452,7 +503,7 @@ int w_Bone_setY(lua_State *L)
 static const luaL_Reg w_Bone_functions[] =
 {
     { "updateWorldTransformWith", w_Bone_updateWorldTransformWith },
-    { "getWorldTransform", w_Bone_getWorldTransform },
+    { "getWorldMatrix", w_Bone_getWorldMatrix },
     { "getTransform", w_Bone_getTransform },
     { "getPosition", w_Bone_getPosition },
     { "setPosition", w_Bone_setPosition },
@@ -578,6 +629,33 @@ static const luaL_Reg w_Animation_functions[] =
 extern "C" int luaopen_animation(lua_State *L)
 {
 	return luax_register_type(L, &Animation::type, w_Animation_functions, nullptr);
+}
+
+// Slot
+Slot* luax_checkslot(lua_State *L, int idx)
+{
+	return luax_checktype<Slot>(L, idx);
+}
+
+int w_Slot_setColor(lua_State* L)
+{
+    Slot* slot = luax_checkslot(L, 1);
+    slot->slot->color.r = (float) luaL_checknumber(L, 2);
+    slot->slot->color.g = (float) luaL_checknumber(L, 3);
+    slot->slot->color.b = (float) luaL_checknumber(L, 4);
+    slot->slot->color.a = (float) luaL_optnumber(L, 5, 1.0);
+    return 0;
+}
+
+static const luaL_Reg w_Slot_functions[] =
+{
+    { "setColor", w_Slot_setColor },
+	{ 0, 0 }
+};
+
+extern "C" int luaopen_slot(lua_State *L)
+{
+	return luax_register_type(L, &Slot::type, w_Slot_functions, nullptr);
 }
 
 } // graphics

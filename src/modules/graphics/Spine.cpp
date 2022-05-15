@@ -100,34 +100,45 @@ SkeletonData::~SkeletonData()
 // StateData
 love::Type StateData::type("StateData", &Object::type);
 
-StateData::StateData(const SkeletonData* skeletonData)
+StateData::StateData(SkeletonData* data)
 {
+    skeletonData = data;
+    skeletonData->retain();
     stateData = spAnimationStateData_create(skeletonData->skeletonData);
 }
 
 StateData::~StateData()
 {
     spAnimationStateData_dispose(stateData);
+    skeletonData->release();
+    skeletonData = nullptr;
 }
 
 // State
 love::Type State::type("State", &Object::type);
 
-State::State(const StateData* stateData)
+State::State(StateData* data)
 {
+    stateData = data;
+    stateData->retain();
     state = spAnimationState_create(stateData->stateData);
 }
 
 State::~State()
 {
     spAnimationState_dispose(state);
+    stateData->release();
+    stateData = nullptr;
 }
 
 // Skeleton
 love::Type Skeleton::type("Skeleton", &Drawable::type);
 
-Skeleton::Skeleton(const SkeletonData* skeletonData)
+Skeleton::Skeleton(SkeletonData* data)
 {
+    skeletonData = data;
+    skeletonData->retain();
+
     auto gfx = Module::getInstance<Graphics>(Module::M_GRAPHICS);
     skeleton = spSkeleton_create(skeletonData->skeletonData);
     // skeleton->scaleX = 0.2;
@@ -142,6 +153,9 @@ Skeleton::Skeleton(const SkeletonData* skeletonData)
 Skeleton::~Skeleton()
 {
     spSkeleton_dispose(skeleton);
+
+    skeletonData->release();
+    skeletonData = nullptr;
 }
 
 void Skeleton::draw(Graphics *gfx, const Matrix4 &m)
@@ -303,6 +317,9 @@ love::Type TrackEntry::type("TrackEntry", &Object::type);
 
 // Animation
 love::Type Animation::type("Animation", &Object::type);
+
+// Slot
+love::Type Slot::type("Slot", &Object::type);
 
 } // graphics
 } // love

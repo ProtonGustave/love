@@ -14,6 +14,7 @@ namespace graphics
     Bone* luax_checkbone(lua_State *L, int idx);
     TrackEntry* luax_checktrackentry(lua_State *L, int idx);
     Animation* luax_checkanimation(lua_State *L, int idx);
+    Slot* luax_checkslot(lua_State *L, int idx);
 
     extern "C" int luaopen_skeletondata(lua_State *L);
     extern "C" int luaopen_statedata(lua_State *L);
@@ -22,6 +23,7 @@ namespace graphics
     extern "C" int luaopen_bone(lua_State *L);
     extern "C" int luaopen_trackentry(lua_State *L);
     extern "C" int luaopen_animation(lua_State *L);
+    extern "C" int luaopen_slot(lua_State *L);
 } // graphics
 } // love
 

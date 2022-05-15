@@ -36,9 +36,10 @@ class StateData : public Object
 public:
 	static love::Type type;
 
+    SkeletonData* skeletonData;
     spAnimationStateData* stateData;
 
-	StateData(const SkeletonData* skeletonData);
+	StateData(SkeletonData* skeletonData);
 	virtual ~StateData();
 }; // StateData
 
@@ -48,8 +49,9 @@ public:
 	static love::Type type;
 
     spAnimationState* state;
+    StateData* stateData;
 
-	State(const StateData* stateData);
+	State(StateData* stateData);
 	virtual ~State();
 }; // State
 
@@ -58,10 +60,11 @@ class Skeleton : public Drawable
 public:
 	static love::Type type;
 
+    SkeletonData* skeletonData;
     spSkeleton* skeleton;
     Mesh* mesh;
 
-	Skeleton(const SkeletonData* skeletonData);
+	Skeleton(SkeletonData* skeletonData);
 	virtual ~Skeleton();
 
     void updateMesh();
@@ -92,6 +95,14 @@ public:
 	static love::Type type;
     spAnimation* anim;
 	Animation(spAnimation* anim): anim(anim) {};
+}; // Animation
+
+class Slot : public Object
+{
+public:
+	static love::Type type;
+    spSlot* slot;
+	Slot(spSlot* slot): slot(slot) {};
 }; // Animation
 
 } // graphics

@@ -3087,6 +3087,7 @@ static const lua_CFunction types[] =
     luaopen_bone,
     luaopen_trackentry,
     luaopen_animation,
+    luaopen_slot,
 	0
 };
 
