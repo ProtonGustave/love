@@ -27,7 +27,7 @@ public:
     spSkeletonData* skeletonData;
     spAtlas* atlas;
 
-	SkeletonData(const char* atlasPath, const char* jsonPath);
+    SkeletonData(love::filesystem::FileData* atlasData, love::filesystem::FileData* jsonData, Image* img);
 	virtual ~SkeletonData();
 }; // SkeletonData
 

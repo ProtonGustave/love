@@ -5,58 +5,66 @@
 
 float worldVertices[1000];
 
-// TODO: basically there is no cleaning at all, whole project
-
 void _spAtlasPage_createTexture(spAtlasPage *self, const char *path) {
-    // TODO: ideally images should be loaded from Lua side, JSON and ATLAS TOO
-    using namespace love;
-
-    // if (self->magFilter == SP_ATLAS_LINEAR) texture->setSmooth(true);
-    // if (self->uWrap == SP_ATLAS_REPEAT && self->vWrap == SP_ATLAS_REPEAT) texture->setRepeated(true);
-
-    // self->rendererObject = texture;
-    // Vector2u size = texture->getSize();
-    // self->width = size.x;
-    // self->height = size.y;
-    // if (imagemodule == nullptr)
-    //     luaL_error(L, "Cannot load images without the love.image module.");
-
-    auto imagemodule = Module::getInstance<image::Image>(Module::M_IMAGE);
-	auto fs = Module::getInstance<filesystem::Filesystem>(Module::M_FILESYSTEM);
-    auto gfx = Module::getInstance<graphics::Graphics>(Module::M_GRAPHICS);
-
-    StrongRef<image::ImageData> idata;
-    graphics::Image::Slices slices(graphics::TEXTURE_2D);
-    filesystem::File* file = fs->newFile(path);
-    Data* data = file->read();
-    file->release();
-    idata.set(imagemodule->newImageData(data), Acquire::NORETAIN);
-    slices.set(0, 0, idata);
-    graphics::Image::Settings settings;
-    graphics::Image* img = gfx->newImage(slices, settings);
-	// img->setFilter(filter);
+    love::graphics::Image* img = (love::graphics::Image*)self->atlas->rendererObject;
     self->rendererObject = img;
     self->width = img->getWidth();
     self->height = img->getHeight();
-
-    printf("IMAGE LOADED %d %d\n", self->width, self->height);
 }
+
+// void _spAtlasPage_createTexture(spAtlasPage *self, const char *path) {
+//     // TODO: ideally images should be loaded from Lua side, JSON and ATLAS TOO
+//     using namespace love;
+//
+//     // if (self->magFilter == SP_ATLAS_LINEAR) texture->setSmooth(true);
+//     // if (self->uWrap == SP_ATLAS_REPEAT && self->vWrap == SP_ATLAS_REPEAT) texture->setRepeated(true);
+//
+//     // self->rendererObject = texture;
+//     // Vector2u size = texture->getSize();
+//     // self->width = size.x;
+//     // self->height = size.y;
+//     // if (imagemodule == nullptr)
+//     //     luaL_error(L, "Cannot load images without the love.image module.");
+//
+//     auto imagemodule = Module::getInstance<image::Image>(Module::M_IMAGE);
+// 	auto fs = Module::getInstance<filesystem::Filesystem>(Module::M_FILESYSTEM);
+//     auto gfx = Module::getInstance<graphics::Graphics>(Module::M_GRAPHICS);
+//
+//     StrongRef<image::ImageData> idata;
+//     graphics::Image::Slices slices(graphics::TEXTURE_2D);
+//     filesystem::File* file = fs->newFile(path);
+//     Data* data = file->read();
+//     file->release();
+//     idata.set(imagemodule->newImageData(data), Acquire::NORETAIN);
+//     slices.set(0, 0, idata);
+//     graphics::Image::Settings settings;
+//     graphics::Image* img = gfx->newImage(slices, settings);
+// 	// img->setFilter(filter);
+//     self->rendererObject = img;
+//     self->width = img->getWidth();
+//     self->height = img->getHeight();
+//
+//     printf("IMAGE LOADED %d %d\n", self->width, self->height);
+// }
 
 void _spAtlasPage_disposeTexture(spAtlasPage *self) {
-    // TODO: delete this
-    // (love::graphics::Image) self->rendererObject;
+    love::graphics::Image* img = (love::graphics::Image*)self->rendererObject;
+    img->release();
 }
 
+// not needed to read files here
 char *_spUtil_readFile(const char *path, int *length) {
-    using namespace love;
-
-    // TODO: make sure this stays alive
-	auto fs = Module::getInstance<filesystem::Filesystem>(Module::M_FILESYSTEM);
-    printf("OPNE ATLAS %s\n", path);
-    filesystem::File* file = fs->newFile(path);
-    Data* data = file->read();
-    *length = data->getSize();
-    return (char*)data->getData();
+    // NO-OP
+    return 0;
+    // using namespace love;
+    //
+    // // TODO: make sure this stays alive
+	// auto fs = Module::getInstance<filesystem::Filesystem>(Module::M_FILESYSTEM);
+    // printf("OPNE ATLAS %s\n", path);
+    // filesystem::File* file = fs->newFile(path);
+    // Data* data = file->read();
+    // *length = data->getSize();
+    // return (char*)data->getData();
 }
 
 namespace love
@@ -67,30 +75,20 @@ namespace graphics
 // SkeletonData
 love::Type SkeletonData::type("SkeletonData", &Object::type);
 
-SkeletonData::SkeletonData(const char* atlasPath, const char* jsonPath)
+SkeletonData::SkeletonData(love::filesystem::FileData* atlasData, love::filesystem::FileData* jsonData, Image* img)
 {
-    // TODO: delete this
-    char* volatileAtlasPath = new char[strlen(atlasPath)];
-    strcpy(volatileAtlasPath, atlasPath);
-
-    // Load the atlas from a file. The last argument is a void* that will be 
-    // stored in atlas->rendererObject.
-    spAtlas* atlas = spAtlas_createFromFile(atlasPath, volatileAtlasPath);
-
-    // load json from file
+    atlas = spAtlas_create((char *) atlasData->getData(), atlasData->getSize(), "", img);
     spSkeletonJson* json = spSkeletonJson_create(atlas);
-    skeletonData = spSkeletonJson_readSkeletonDataFile(json, jsonPath);
+	skeletonData = spSkeletonJson_readSkeletonData(json, (char *)jsonData->getData());
 
     // If loading failed, print the error
     if (!skeletonData) {
-        printf("%s\n", json->error);
         spSkeletonJson_dispose(json);
-        // TODO: how to throw error to lua?
+        spAtlas_dispose(atlas);
+        throw love::Exception("Couldn't read skeleton data file, error: %s", json->error);
     }
 
-    // TODO: throw error
-    // Dispose the spSkeletonJson as we no longer need it after loading.
-    // spSkeletonJson_dispose(json);
+    spSkeletonJson_dispose(json);
 }
 
 SkeletonData::~SkeletonData()
@@ -118,7 +116,6 @@ love::Type State::type("State", &Object::type);
 State::State(const StateData* stateData)
 {
     state = spAnimationState_create(stateData->stateData);
-    // spAnimationState_setAnimationByName(state, 0, "idle", 1);
 }
 
 State::~State()

@@ -26,6 +26,7 @@
 #include "font/Rasterizer.h"
 #include "filesystem/Filesystem.h"
 #include "filesystem/wrap_Filesystem.h"
+#include "filesystem/wrap_FileData.h"
 #include "video/VideoStream.h"
 #include "image/wrap_Image.h"
 #include "common/Reference.h"
@@ -1115,22 +1116,24 @@ int w_newSpine(lua_State *L)
 {
 	luax_checkgraphicscreated(L);
 
-    const char *atlasPath = luaL_checkstring(L, 1);
-    const char *jsonPath = luaL_checkstring(L, 2);
+    love::filesystem::FileData* atlas = love::filesystem::luax_checkfiledata(L, 1);
+    love::filesystem::FileData* json = love::filesystem::luax_checkfiledata(L, 2);
+    Image* texture = luax_checkimage(L, 3);
 
-    // TODO CATCH EXCEPT STUFF
-	// StrongRef<SkeletonData> skeletonData;
-	// StrongRef<StateData> stateData;
+    texture->retain();
 
-    // skeletonData.set(new SkeletonData(atlasPath, jsonPath));
-    // stateData.set(new StateData(skeletonData));
+    SkeletonData* skeletonData = nullptr;
+    StateData* stateData = nullptr;
 
-    SkeletonData* skeletonData = new SkeletonData(atlasPath, jsonPath);
-    StateData* stateData = new StateData(skeletonData);
+    luax_catchexcept(L, [&]() {
+        skeletonData = new SkeletonData(atlas, json, texture);
+        stateData = new StateData(skeletonData);
+    });
 
-	// Push the type.
 	luax_pushtype(L, skeletonData);
 	luax_pushtype(L, stateData);
+    skeletonData->release();
+    stateData->release();
 	return 2;
 }
 

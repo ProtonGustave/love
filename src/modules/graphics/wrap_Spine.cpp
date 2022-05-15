@@ -18,9 +18,9 @@ SkeletonData* luax_checkskeletondata(lua_State *L, int idx)
 int w_SkeletonData_createSkeleton(lua_State *L)
 {
 	SkeletonData* skeletonData = luax_checkskeletondata(L, 1);
-    Skeleton* skeleton = new Skeleton(skeletonData);
-
-    luax_pushtype(L, skeleton);
+    Skeleton* skeletonWrapper = new Skeleton(skeletonData);
+    luax_pushtype(L, skeletonWrapper);
+    skeletonWrapper->release();
     return 1;
 }
 
@@ -32,6 +32,20 @@ int w_SkeletonData_getSetupSize(lua_State *L)
     return 2;
 }
 
+int w_SkeletonData_getSetupWidth(lua_State *L)
+{
+	SkeletonData* skeletonData = luax_checkskeletondata(L, 1);
+    lua_pushnumber(L, skeletonData->skeletonData->width);
+    return 1;
+}
+
+int w_SkeletonData_getSetupHeight(lua_State *L)
+{
+	SkeletonData* skeletonData = luax_checkskeletondata(L, 1);
+    lua_pushnumber(L, skeletonData->skeletonData->height);
+    return 1;
+}
+
 int w_SkeletonData_findAnimation(lua_State *L)
 {
 	SkeletonData* skeletonData = luax_checkskeletondata(L, 1);
@@ -41,7 +55,9 @@ int w_SkeletonData_findAnimation(lua_State *L)
     if (anim == 0) {
         lua_pushnil(L);
     } else {
-        luax_pushtype(L, new Animation(anim));
+        Animation* animationWrapper = new Animation(anim);
+        luax_pushtype(L, animationWrapper);
+        animationWrapper->release();
     }
 
     return 1;
@@ -51,6 +67,8 @@ static const luaL_Reg w_SkeletonData_functions[] =
 {
 	{ "findAnimation", w_SkeletonData_findAnimation },
 	{ "getSetupSize", w_SkeletonData_getSetupSize },
+	{ "getSetupWidth", w_SkeletonData_getSetupWidth },
+	{ "getSetupHeight", w_SkeletonData_getSetupHeight },
 	{ "createSkeleton", w_SkeletonData_createSkeleton },
 	{ 0, 0 }
 };
@@ -69,9 +87,10 @@ StateData* luax_checkstatedata(lua_State *L, int idx)
 int w_StateData_createState(lua_State *L)
 {
     StateData* stateData = luax_checkstatedata(L, 1);
-    State* state = new State(stateData);
+    State* stateWrapper = new State(stateData);
 
-    luax_pushtype(L, state);
+    luax_pushtype(L, stateWrapper);
+    stateWrapper->release();
     return 1;
 }
 
@@ -125,7 +144,9 @@ int w_State_setAnimationByName(lua_State *L)
     const char* animName = luaL_checkstring(L, 3);
     bool loop = luax_checkboolean(L, 4);
     spTrackEntry* trackEntry = spAnimationState_setAnimationByName(state->state, track, animName, loop);
-    luax_pushtype(L, new TrackEntry(trackEntry));
+    TrackEntry* trackEntryWrapper = new TrackEntry(trackEntry);
+    luax_pushtype(L, trackEntryWrapper);
+    trackEntryWrapper->release();
     return 1;
 }
 
@@ -137,7 +158,9 @@ int w_State_addAnimationByName(lua_State *L)
     bool loop = luax_checkboolean(L, 4);
     float delay = luaL_checknumber(L, 5);
     spTrackEntry* trackEntry = spAnimationState_addAnimationByName(state->state, track, animName, loop, delay);
-    luax_pushtype(L, new TrackEntry(trackEntry));
+    TrackEntry* trackEntryWrapper = new TrackEntry(trackEntry);
+    luax_pushtype(L, trackEntryWrapper);
+    trackEntryWrapper->release();
     return 1;
 }
 
@@ -147,7 +170,9 @@ int w_State_setEmptyAnimation(lua_State *L)
 	int track = (int) luaL_checkinteger(L, 2);
     float mixDuration = luaL_checknumber(L, 3);
     spTrackEntry* trackEntry = spAnimationState_setEmptyAnimation(state->state, track, mixDuration);
-    luax_pushtype(L, new TrackEntry(trackEntry));
+    TrackEntry* trackEntryWrapper = new TrackEntry(trackEntry);
+    luax_pushtype(L, trackEntryWrapper);
+    trackEntryWrapper->release();
     return 1;
 }
 
@@ -160,7 +185,9 @@ int w_State_getCurrent(lua_State *L)
     if (trackEntry == 0) {
         lua_pushnil(L);
     } else {
-        luax_pushtype(L, new TrackEntry(trackEntry));
+        TrackEntry* trackEntryWrapper = new TrackEntry(trackEntry);
+        luax_pushtype(L, trackEntryWrapper);
+        trackEntryWrapper->release();
     }
 
     return 1;
@@ -173,8 +200,25 @@ int w_State_getTracksCount(lua_State *L)
     return 1;
 }
 
+int w_State_getAnimationName(lua_State *L)
+{
+    State* state = luax_checkstate(L, 1);
+	int track = (int) luaL_checkinteger(L, 2);
+    spTrackEntry* trackEntry = spAnimationState_getCurrent(state->state, track);
+
+    if (trackEntry == 0) {
+        lua_pushnil(L);
+    } else {
+        lua_pushstring(L, trackEntry->animation->name);
+    }
+
+    return 1;
+}
+
 static const luaL_Reg w_State_functions[] =
 {
+    // return name of current animation of given track, a helper for getCurrent(0):getAnimation():getName()
+    { "getAnimationName", w_State_getAnimationName },
     { "getCurrent", w_State_getCurrent },
     { "setAnimationByName", w_State_setAnimationByName },
     { "addAnimationByName", w_State_addAnimationByName },
@@ -219,7 +263,9 @@ int w_Skeleton_findBone(lua_State *L)
     if (bone == 0) {
         lua_pushnil(L);
     } else {
-        luax_pushtype(L, new Bone(bone));
+        Bone* boneWrapper = new Bone(bone);
+        luax_pushtype(L, boneWrapper);
+        boneWrapper->release();
     }
 
     return 1;
@@ -272,6 +318,7 @@ int w_Skeleton_setAttachment(lua_State *L)
 
 static const luaL_Reg w_Skeleton_functions[] =
 {
+    // return name of current animation of given track id
     { "findBone", w_Skeleton_findBone },
     { "setAttachment", w_Skeleton_setAttachment },
     { "setPosition", w_Skeleton_setPosition },
@@ -372,6 +419,36 @@ int w_Bone_getPosition(lua_State *L)
     return 2;
 }
 
+int w_Bone_getX(lua_State *L)
+{
+    Bone* bone = luax_checkbone(L, 1);
+    lua_pushnumber(L, bone->bone->x);
+    return 1;
+}
+
+int w_Bone_setX(lua_State *L)
+{
+    Bone* bone = luax_checkbone(L, 1);
+    float x = luaL_checknumber(L, 2);
+    bone->bone->x = x;
+    return 0;
+}
+
+int w_Bone_getY(lua_State *L)
+{
+    Bone* bone = luax_checkbone(L, 1);
+    lua_pushnumber(L, bone->bone->y);
+    return 1;
+}
+
+int w_Bone_setY(lua_State *L)
+{
+    Bone* bone = luax_checkbone(L, 1);
+    float y = luaL_checknumber(L, 2);
+    bone->bone->y = y;
+    return 0;
+}
+
 static const luaL_Reg w_Bone_functions[] =
 {
     { "updateWorldTransformWith", w_Bone_updateWorldTransformWith },
@@ -379,6 +456,10 @@ static const luaL_Reg w_Bone_functions[] =
     { "getTransform", w_Bone_getTransform },
     { "getPosition", w_Bone_getPosition },
     { "setPosition", w_Bone_setPosition },
+    { "getX", w_Bone_getX },
+    { "setX", w_Bone_setX },
+    { "getY", w_Bone_getY },
+    { "setY", w_Bone_setY },
     { "getSetupTransform", w_Bone_getSetupTransform },
     { "getSetupPosition", w_Bone_getSetupPosition },
 	{ 0, 0 }
@@ -412,7 +493,9 @@ int w_TrackEntry_getAnimationEnd(lua_State* L)
 int w_TrackEntry_getAnimation(lua_State* L)
 {
     TrackEntry* trackEntry = luax_checktrackentry(L, 1);
-    luax_pushtype(L, new Animation(trackEntry->trackEntry->animation));
+    Animation* animationWrapper = new Animation(trackEntry->trackEntry->animation);
+    luax_pushtype(L, animationWrapper);
+    animationWrapper->release();
     return 1;
 }
 
