@@ -404,6 +404,20 @@ int w_Bone_getWorldMatrix(lua_State *L)
     return 6;
 }
 
+int w_Bone_getWorldX(lua_State *L)
+{
+    Bone* bone = luax_checkbone(L, 1);
+    lua_pushnumber(L, bone->bone->worldX);
+    return 1;
+}
+
+int w_Bone_getWorldY(lua_State *L)
+{
+    Bone* bone = luax_checkbone(L, 1);
+    lua_pushnumber(L, bone->bone->worldY);
+    return 1;
+}
+
 int w_Bone_getTransform(lua_State *L)
 {
     Bone* bone = luax_checkbone(L, 1);
@@ -504,6 +518,8 @@ static const luaL_Reg w_Bone_functions[] =
 {
     { "updateWorldTransformWith", w_Bone_updateWorldTransformWith },
     { "getWorldMatrix", w_Bone_getWorldMatrix },
+    { "getWorldX", w_Bone_getWorldX },
+    { "getWorldY", w_Bone_getWorldY },
     { "getTransform", w_Bone_getTransform },
     { "getPosition", w_Bone_getPosition },
     { "setPosition", w_Bone_setPosition },

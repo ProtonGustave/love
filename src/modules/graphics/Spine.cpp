@@ -303,8 +303,6 @@ void Skeleton::updateMesh()
         }
     }
 
-    // TODO: move "mesh->" operations to draw?
-
     mesh->setDrawRange(0, totalVerticesNum);
     mesh->setTexture(texture);
 }
