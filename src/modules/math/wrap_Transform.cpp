@@ -281,6 +281,37 @@ int w_Transform_inverseTransformPoint(lua_State *L)
 	return 2;
 }
 
+int w_Transform_getScale(lua_State *L)
+{
+	Transform *t = luax_checktransform(L, 1);
+    float sx, sy;
+    Matrix4 m = t->getMatrix();
+    m.getScale(&sx, &sy);
+    lua_pushnumber(L, sx);
+    lua_pushnumber(L, sy);
+    return 2;
+}
+
+int w_Transform_getTranslation(lua_State *L)
+{
+	Transform *t = luax_checktransform(L, 1);
+    float x, y;
+    Matrix4 m = t->getMatrix();
+    m.getTranslation(&x, &y);
+    lua_pushnumber(L, x);
+    lua_pushnumber(L, y);
+    return 2;
+}
+
+int w_Transform_getRotation(lua_State *L)
+{
+	Transform *t = luax_checktransform(L, 1);
+    float rot;
+    Matrix4 m = t->getMatrix();
+    lua_pushnumber(L, m.getRotation());
+    return 1;
+}
+
 int w_Transform__mul(lua_State *L)
 {
 	Transform *t1 = luax_checktransform(L, 1);
@@ -307,6 +338,9 @@ static const luaL_Reg functions[] =
 	{ "getMatrix", w_Transform_getMatrix },
 	{ "transformPoint", w_Transform_transformPoint },
 	{ "inverseTransformPoint", w_Transform_inverseTransformPoint },
+    { "getScale", w_Transform_getScale },
+    { "getTranslation", w_Transform_getTranslation },
+    { "getRotation", w_Transform_getRotation },
 	{ "__mul", w_Transform__mul },
 	{ 0, 0 }
 };

@@ -1112,6 +1112,271 @@ int w_newFont(lua_State *L)
 	return 1;
 }
 
+struct Tfm {
+    float x;
+    float y;
+    float rot;
+    float sx;
+    float sy;
+    float ox;
+    float oy;
+};
+
+struct TfmInherit {
+    bool translation;
+    bool rotation;
+    bool scale;
+};
+
+Tfm luax_checktfm(lua_State *L, int idx)
+{
+    luaL_checktype(L, idx, LUA_TTABLE);
+    Tfm tfm = {};
+
+    lua_getfield(L, idx, "x");
+    tfm.x = luaL_optnumber(L, -1, 0.0f);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "y");
+    tfm.y = luaL_optnumber(L, -1, 0.0f);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "rot");
+    tfm.rot = luaL_optnumber(L, -1, 0.0f);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "sx");
+    tfm.sx = luaL_optnumber(L, -1, 1.0f);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "sy");
+    tfm.sy = luaL_optnumber(L, -1, 1.0f);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "ox");
+    tfm.ox = luaL_optnumber(L, -1, 0.0f);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "oy");
+    tfm.oy = luaL_optnumber(L, -1, 0.0f);
+    lua_pop(L, 1);
+
+    return tfm;
+}
+
+TfmInherit luax_checktfminherit(lua_State *L, int idx)
+{
+    TfmInherit inherit = {};
+
+    lua_getfield(L, idx, "translation");
+    inherit.translation = luax_optboolean(L, -1, true);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "rotation");
+    inherit.rotation = luax_optboolean(L, -1, true);
+    lua_pop(L, 1);
+    lua_getfield(L, idx, "scale");
+    inherit.scale = luax_optboolean(L, -1, true);
+    lua_pop(L, 1);
+
+    return inherit;
+}
+
+void luax_pushtfm(lua_State *L, Tfm tfm)
+{
+    lua_createtable(L, 0, 7);
+    lua_pushnumber(L, tfm.x);
+    lua_setfield(L, -2, "x");
+    lua_pushnumber(L, tfm.y);
+    lua_setfield(L, -2, "y");
+    lua_pushnumber(L, tfm.rot);
+    lua_setfield(L, -2, "rot");
+    lua_pushnumber(L, tfm.sx);
+    lua_setfield(L, -2, "sx");
+    lua_pushnumber(L, tfm.sy);
+    lua_setfield(L, -2, "sy");
+    lua_pushnumber(L, tfm.ox);
+    lua_setfield(L, -2, "ox");
+    lua_pushnumber(L, tfm.oy);
+    lua_setfield(L, -2, "oy");
+}
+
+void luax_ecsget(lua_State *L, int entity, const char* component)
+{
+    lua_getglobal(L, "ecs");
+    lua_getfield(L, -1, "get");
+    // remove "ecs" from stack
+    lua_remove(L, -2);
+    lua_pushnumber(L, entity);
+    lua_pushstring(L, component);
+    lua_call(L, 2, 1);
+}
+
+bool luax_ecshas(lua_State *L, int entity, const char* component)
+{
+    lua_getglobal(L, "ecs");
+    lua_getfield(L, -1, "has");
+    // remove "ecs" from stack
+    lua_remove(L, -2);
+    lua_pushnumber(L, entity);
+    lua_pushstring(L, component);
+    lua_call(L, 2, 1);
+    bool has = luax_toboolean(L, -1);
+    lua_pop(L, 1);
+    return has;
+}
+
+Tfm combineTfm(Tfm tfm1, Tfm tfm2, TfmInherit inherit)
+{
+    return (Tfm){
+        .x = tfm1.x + (inherit.translation ? tfm2.x : 0),
+        .y = tfm1.y + (inherit.translation ? tfm2.y : 0),
+        .rot = tfm1.rot + (inherit.rotation ? tfm2.rot : 0),
+        .sx = tfm1.sx * (inherit.scale ? tfm2.sx : 1),
+        .sy = tfm1.sy * (inherit.scale ? tfm2.sy : 1),
+        .ox = tfm1.ox,
+        .oy = tfm1.oy
+    };
+}
+
+// turn given tfm from local coords of specified entity to world coords
+int w_localTfmToWorld(lua_State *L)
+{
+    int entity = luaL_checkinteger(L, 1);
+    Tfm tfm = luax_checktfm(L, 2);
+
+    // combine extra tfm
+    luax_ecsget(L, entity, "tfm_extra");
+    if (lua_type(L, -1) != LUA_TNIL) {
+        Tfm extraTfm = luax_checktfm(L, -1);
+        tfm = combineTfm(tfm, extraTfm, (TfmInherit) { .translation = true, .rotation = true, .scale = true });
+    }
+    lua_pop(L, 1);
+
+    // early exit because of "ui" comp
+    luax_ecsget(L, entity, "ui");
+    if (lua_type(L, -1) != LUA_TNIL) {
+        lua_getfield(L, -1, "anchor");
+        if (lua_type(L, -1) != LUA_TNIL) {
+            lua_getfield(L, -1, "x");
+            lua_getfield(L, -2, "y");
+
+            tfm.x += instance()->getWidth() * lua_tonumber(L, -2);
+            tfm.y += instance()->getHeight() * lua_tonumber(L, -1);
+            luax_pushtfm(L, tfm);
+            return 1;
+        }
+        lua_pop(L, 2);
+    }
+    lua_pop(L, 1);
+
+    // early exit no parent
+    luax_ecsget(L, entity, "tfm_inherit");
+
+    if (lua_type(L, -1) == LUA_TNIL) {
+        luax_pushtfm(L, tfm);
+        return 1;
+    }
+
+    lua_getfield(L, -1, "parent");
+
+    if (lua_type(L, -1) == LUA_TNIL) {
+        luax_pushtfm(L, tfm);
+        return 1;
+    }
+
+    lua_pop(L, 1);
+
+    TfmInherit initialInherit = luax_checktfminherit(L, -1);
+    lua_pop(L, 1);
+
+    while (true) {
+        luax_ecsget(L, entity, "tfm_inherit");
+
+        if (lua_type(L, -1) == LUA_TNIL) {
+            lua_pop(L, 1);
+            break;
+        }
+
+        TfmInherit tfmInherit = luax_checktfminherit(L, -1);
+        lua_getfield(L, -1, "parent");
+        int parentType = lua_type(L, -1);
+
+        if (lua_type(L, -1) == LUA_TNIL) {
+            lua_pop(L, 2);
+            break;
+        }
+
+        // parent is entity id
+        if (parentType == LUA_TNUMBER) {
+            int parent = lua_tonumber(L, -1);
+            lua_pop(L, 2);
+            luax_ecsget(L, parent, "tfm");
+
+            // combine tfm
+            if (lua_type(L, -1) != LUA_TNIL) {
+                Tfm parentTfm = luax_checktfm(L, -1);
+                lua_pop(L, 1);
+
+                luax_ecsget(L, parent, "tfm_extra");
+                if (lua_type(L, -1) != LUA_TNIL) {
+                    Tfm extraTfm = luax_checktfm(L, -1);
+                    parentTfm = combineTfm(parentTfm, extraTfm, (TfmInherit) { .translation = true, .rotation = true, .scale = true });
+                }
+                lua_pop(L, 1);
+
+                tfm = combineTfm(tfm, parentTfm, tfmInherit);
+            }
+
+            // check "ui" comp
+            luax_ecsget(L, parent, "ui");
+            if (lua_type(L, -1) != LUA_TNIL) {
+                lua_getfield(L, -1, "anchor");
+                if (lua_type(L, -1) != LUA_TNIL) {
+                    lua_getfield(L, -1, "x");
+                    lua_getfield(L, -2, "y");
+
+                    tfm.x += instance()->getWidth() * lua_tonumber(L, -2);
+                    tfm.y += instance()->getHeight() * lua_tonumber(L, -1);
+                    lua_pop(L, 2);
+                    break;
+                }
+                lua_pop(L, 2);
+            }
+            lua_pop(L, 1);
+
+            entity = parent;
+        } else if (parentType == LUA_TUSERDATA) {
+            Bone* bone = luax_checkbone(L, -1);
+            lua_pop(L, 2);
+
+            Matrix4 boneMatrix {};
+            boneMatrix.setRawTransformation(bone->bone->a, bone->bone->c, bone->bone->b, bone->bone->d, bone->bone->worldX, bone->bone->worldY);
+            love::math::Transform boneTransform(boneMatrix);
+
+            float x = 0.0f;
+            float y = 0.0f;
+            float sx = 0.0f;
+            float sy = 0.0f;
+            float rot = (!tfmInherit.rotation || !initialInherit.rotation) ? 0.0f : boneMatrix.getRotation();
+
+            if (tfmInherit.scale && initialInherit.scale) {
+                boneMatrix.getScale(&sx, &sy);
+            }
+
+            if (tfmInherit.translation && initialInherit.translation) {
+                boneMatrix.getTranslation(&x, &y);
+            }
+
+            boneTransform.setTransformation(x, y, rot, sx, sy, 0.0f, 0.0f, 0.0f, 0.0f);
+            love::math::Transform tfmTransform(tfm.x, tfm.y, tfm.rot, tfm.sx, tfm.sy, 0.0f, 0.0f, 0.0f, 0.0f);
+            boneTransform.apply(&tfmTransform);
+            boneMatrix = boneTransform.getMatrix();
+
+            boneMatrix.getTranslation(&tfm.x, &tfm.y);
+            boneMatrix.getScale(&tfm.sx, &tfm.sy);
+            tfm.rot = boneMatrix.getRotation();
+            break;
+        }
+    }
+
+    luax_pushtfm(L, tfm);
+    return 1;
+}
+
 int w_newSpine(lua_State *L)
 {
 	luax_checkgraphicscreated(L);
@@ -2946,6 +3211,8 @@ static const luaL_Reg functions[] =
 	{ "newQuad", w_newQuad },
 	{ "newFont", w_newFont },
 	{ "newSpine", w_newSpine },
+    // TODO: move it out of here
+	{ "localTfmToWorld", w_localTfmToWorld },
 	{ "newImageFont", w_newImageFont },
 	{ "newSpriteBatch", w_newSpriteBatch },
 	{ "newParticleSystem", w_newParticleSystem },

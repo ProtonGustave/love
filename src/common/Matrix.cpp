@@ -143,7 +143,6 @@ Matrix4::Matrix4()
 	setIdentity();
 }
 
-
 Matrix4::Matrix4(const float elements[16])
 {
 	memcpy(e, elements, sizeof(float) * 16);
@@ -185,6 +184,25 @@ void Matrix4::setIdentity()
 {
 	memset(e, 0, sizeof(float)*16);
 	e[15] = e[10] = e[5] = e[0] = 1;
+}
+
+void Matrix4::getScale(float* sx, float* sy)
+{
+    *sx = copysign(1.0f, e[0]) * sqrt(pow(e[0], 2) + pow(e[4], 2));
+    *sy = copysign(1.0f, e[5]) * sqrt(pow(e[1], 2) + pow(e[5], 2));
+}
+
+void Matrix4::getTranslation(float* x, float* y)
+{
+    *x = e[12];
+    *y = e[13];
+}
+
+float Matrix4::getRotation()
+{
+    float sx, sy;
+    getScale(&sx, &sy);
+    return atan2(-e[4] / sy, e[0] / sx);
 }
 
 void Matrix4::setTranslation(float x, float y)

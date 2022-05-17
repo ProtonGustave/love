@@ -88,6 +88,10 @@ public:
 	 **/
 	const float *getElements() const;
 
+    float getRotation();
+    void getScale(float* sx, float* sy);
+    void getTranslation(float* x, float* y);
+
 	/**
 	 * Resets this Matrix to the identity matrix.
 	 **/
